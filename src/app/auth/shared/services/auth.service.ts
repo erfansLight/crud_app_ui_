@@ -29,4 +29,10 @@ export class AuthService {
     return this.http.post<any>(`${this.baseUrl}/register`, body);
   }
 
+  // POST request for Google login
+  googleLogin(googleToken: string): Observable<any> {
+    const body = { token: googleToken };
+    return this.http.post<any>('http://localhost:5000/auth/google', body);
+  }
+
 }

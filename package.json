@@ -19,6 +19,7 @@
     "@angular/platform-browser": "^19.2.0",
     "@angular/platform-browser-dynamic": "^19.2.0",
     "@angular/router": "^19.2.0",
+    "@react-oauth/google": "^0.12.2",
     "@tailwindcss/postcss": "^4.1.8",
     "jwt-decode": "^4.0.0",
     "postcss": "^8.5.4",
