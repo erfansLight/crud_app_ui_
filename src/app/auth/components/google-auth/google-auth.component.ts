@@ -2,6 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { TokenService } from '../../../shared/services/token.service';
 import { Router } from '@angular/router';
 import { AuthService } from '../../shared/services/auth.service';
+import { environment } from '../../../../environments/environment';
 
 declare const google: any;
 
@@ -11,7 +12,7 @@ declare const google: any;
   styleUrls: ['./google-auth.component.css'],
 })
 export class GoogleAuthComponent implements OnInit {
-  private clientId = '589508980994-3fcpoc9vge5kjrnqocvuhqi88spu8lhr.apps.googleusercontent.com';
+  private clientId = environment.googleClientId;
   isLoginInProgress = false;
 
   private tokenService: TokenService = inject(TokenService);
