@@ -6,37 +6,69 @@
     </p>
   </div>
   <div class="">
-    <form action="" [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="flex flex-col justify-around min-h-[400px]">
+    <form
+      action=""
+      [formGroup]="loginForm"
+      (ngSubmit)="onSubmit()"
+      class="flex flex-col justify-around min-h-[400px]"
+    >
       <label class="input-label">
         <div class="relative w-full">
-          <input type="email" formControlName="EmailInput"
-            class="rounded-lg border-1 h-10 w-full border-[#9e9e9e] outline-none p-2" (focus)="isFocused = true"
-            (blur)="isFocused = false" (input)="isInValid = false" (input)="onchange($event)" [ngClass]="{
+          <input
+            type="email"
+            formControlName="EmailInput"
+            class="rounded-lg border-1 h-10 w-full border-[#9e9e9e] outline-none p-2"
+            (focus)="isFocused = true"
+            (blur)="isFocused = false"
+            (input)="isInValid = false"
+            (input)="onchange($event)"
+            [ngClass]="{
               error_border: isInValid,
-            }" />
+            }"
+          />
 
-          <span class="absolute left-2.5 text-gray-500 text-sm top-2.5 transition-all duration-300 ease-in" [ngClass]="{
+          <span
+            class="absolute left-2.5 text-gray-500 text-sm top-2.5 transition-all duration-300 ease-in"
+            [ngClass]="{
               active: isFocused || loginForm.get('EmailInput')?.value
-            }">Email</span>
+            }"
+            >Email</span
+          >
         </div>
-        <p id="error" class="Error absolute left-6 text-danger text-sm" [ngClass]="{
+        <p
+          id="error"
+          class="Error absolute left-6 text-danger text-sm"
+          [ngClass]="{
             error_text: isEmpty
-          }">
+          }"
+        >
           Please enter your email !
         </p>
-        <p id="error" class="Error absolute left-6 text-danger text-sm" [ngClass]="{
+        <p
+          id="error"
+          class="Error absolute left-6 text-danger text-sm"
+          [ngClass]="{
             error_text: isInValid
-          }">
+          }"
+        >
           Please enter correct email !
         </p>
       </label>
+      <app-google-auth></app-google-auth>
       @if (!loading) {
-      <button type="submit"
-        class="h-10 rounded-xl text-white text-xl relative bottom-15 bg-primary hover:bg-primary-dark">
-        send code</button>} @if (loading) {
-      <button type="submit"
+      <button
+        type="submit"
+        class="h-10 rounded-xl text-white text-xl relative bottom-15 bg-primary hover:bg-primary-dark"
+      >
+        send code</button
+      >
+    
+    } @if (loading) {
+      <button
+        type="submit"
         class="h-10 rounded-xl text-white text-xl relative bottom-15 flex justify-center items-center bg-primary hover:bg-primary-dark cursor-not-allowed"
-        disabled>
+        disabled
+      >
         sending...
         <app-loading-spinner></app-loading-spinner>
       </button>

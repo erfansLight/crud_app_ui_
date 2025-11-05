@@ -1,17 +1,28 @@
 <div class="grid grid-cols-2 gap-y-4 gap-x-2 p-3">
   <div class="flex flex-col" *ngFor="let label of labels">
     <label [for]="label" class=""> {{ label }} </label>
-    <input type="text"
+    <input
+      type="text"
       class="bg-gray-100 outline-none px-3 p-1 focus:bg-white focus:shadow-[0_0_8px_2px_rgba(0,0,0,0.15)] rounded-lg border border-solid border-gray-300"
-      [id]="label" (keypress)="handleKeyPress($event, label)" (input)="onInput($event, label)" />
+      [id]="label"
+      (keypress)="handleKeyPress($event, label)"
+      (input)="onInput($event, label)"
+    />
   </div>
   <div class="flex flex-col">
     <label for="brand">Brand</label>
-    <select id="brand" name="brand"
+    <select
+      id="brand"
+      name="brand"
       class="bg-gray-100 rounded-lg py-1.5 px-4 border border-solid border-gray-300 outline-none text-center"
-      (change)="onchange($event,0)">
+      (change)="onchange($event, 0)"
+    >
       <option [value]="-1">__Select Brand__</option>
-      <option [value]="brand.brands_id" *ngFor="let brand of brands" class="bg-white text-[#333] py-1 px-2 flex">
+      <option
+        [value]="brand.brands_id"
+        *ngFor="let brand of brands"
+        class="bg-white text-[#333] py-1 px-2 flex"
+      >
         {{ brand.name }}
       </option>
     </select>
@@ -19,11 +30,18 @@
 
   <div class="flex flex-col">
     <label for="seller" class=""> Seller </label>
-    <select id="seller" name="seller"
+    <select
+      id="seller"
+      name="seller"
       class="bg-gray-100 rounded-lg py-1.5 px-4 border border-solid border-gray-300 outline-none text-center"
-      (change)="onchange($event,1)">
+      (change)="onchange($event, 1)"
+    >
       <option [value]="-1">__Select Seller__</option>
-      <option [value]="seller.seller_id" *ngFor="let seller of sellers" class="bg-white text-[#333] py-1 px-2 flex">
+      <option
+        [value]="seller.seller_id"
+        *ngFor="let seller of sellers"
+        class="bg-white text-[#333] py-1 px-2 flex"
+      >
         {{ seller.name }}
       </option>
     </select>

@@ -20,6 +20,7 @@ import { RegisterComponent } from '../registerComponents/register/register.compo
 import { LoadingSpinnerComponent } from '../loading-spinner/loading-spinner.component';
 import { filter } from 'rxjs';
 import { ErrorToastComponent } from '../error-toast/error-toast.component';
+import { AuthService } from '../../shared/services/auth.service';
 @Component({
   selector: 'app-verify',
   imports: [
@@ -55,8 +56,8 @@ export class VerifyComponent {
   private formBuilder: FormBuilder = inject(FormBuilder);
   private http: HttpClient = inject(HttpClient);
   private router: Router = inject(Router);
-  private tokenservice: TokenService = inject(TokenService);
-  private pl: PlatformLocation = inject(PlatformLocation);
+  private tokenService: TokenService = inject(TokenService);
+  private authService: AuthService = inject(AuthService);
 
   verifyForm: FormGroup = new FormGroup({});
   ngOnInit() {
@@ -148,59 +149,48 @@ export class VerifyComponent {
     }
   }
 
-  onSubmit() {
+    onSubmit() {
     if (this.verifyForm.invalid) {
       this.code = '';
       this.show = true;
-      setTimeout(() => {
-        this.show = false;
-      }, 3000);
-    } else {
-      this.loading = true;
-      for (let i = 0; i < 6; i++) {
-        this.code += this.value[i];
-      }
-      // console.log(this.code);
-      const requestBody = {
-        token: this.token,
-        code: this.code,
-      };
-      this.http
-        .post<any>('http://localhost:5000/user/verify', requestBody)
-        .subscribe({
-          next: (res) => {
-            const { status, data } = res;
-            if (status == 200) {
-              this.cleanup();
-              this.tokenservice.storeToken(data);
-              if (this.state == '1') {
-                const role = this.tokenservice.getUserRole(data);
-                // console.log(role);
-                localStorage.removeItem('state');
-                localStorage.removeItem('email');
-                if (role == 'user') {
-                  this.router.navigate(['main-page'], { replaceUrl: true });
-                } else if (role == 'admin') {
-                  this.router.navigate(['admin'], { replaceUrl: true });
-                }
-              } else {
-                this.loading = false;
-                this.modalOpen = true;
-              }
-            }
-          },
-          error: (err) => {
-            this.loading = false;
-            const { status } = err;
-            console.log(`status is ${status}`);
-            this.code = '';
-            this.show = true;
-            setTimeout(() => {
-              this.show = false;
-            }, 3000);
-          },
-        });
+      setTimeout(() => (this.show = false), 3000);
+      return;
     }
+
+    this.loading = true;
+    this.code = this.value.join('');
+
+    this.authService.verify(this.token!, this.code).subscribe({
+      next: (res) => {
+        const { status, data } = res;
+        if (status == 200) {
+          this.cleanup();
+          this.tokenService.storeToken(data);
+
+          if (this.state == '1') {
+            const role = this.tokenService.getUserRole(data);
+            localStorage.removeItem('state');
+            localStorage.removeItem('email');
+
+            if (role == 'user') {
+              this.router.navigate(['main-page'], { replaceUrl: true });
+            } else if (role == 'admin') {
+              this.router.navigate(['admin'], { replaceUrl: true });
+            }
+          } else {
+            this.loading = false;
+            this.modalOpen = true;
+          }
+        }
+      },
+      error: (err) => {
+        this.loading = false;
+        console.error(err);
+        this.code = '';
+        this.show = true;
+        setTimeout(() => (this.show = false), 3000);
+      },
+    });
   }
 
   onlyNumber(event: KeyboardEvent) {

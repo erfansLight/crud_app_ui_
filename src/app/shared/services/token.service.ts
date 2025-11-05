@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { jwtDecode } from 'jwt-decode';
 
-
 interface JwtPayload {
   id: number;
   email: string;
@@ -14,7 +13,7 @@ interface JwtPayload {
   providedIn: 'root',
 })
 export class TokenService {
-  constructor() { }
+  constructor() {}
 
   decodeToken(token: string): JwtPayload | null {
     try {
@@ -25,14 +24,8 @@ export class TokenService {
     }
   }
 
-  getUserRole(token: string): string | null {
-    const decoded = this.decodeToken(token);
-    return decoded?.role || null;
-  }
-
-  getUserEmail(token: string): string | null {
-    const decoded = this.decodeToken(token);
-    return decoded?.email || null;
+  getToken(): string | null {
+    return localStorage.getItem('token');
   }
 
   storeToken(token: string): void {
@@ -43,22 +36,29 @@ export class TokenService {
     localStorage.removeItem('token');
   }
 
-  getToken(): string | null {
-    return localStorage.getItem('token');
-  }
-
   getUserInfo(): JwtPayload | null {
     const token = this.getToken();
     if (!token) return null;
+    return this.decodeToken(token);
+  }
 
-    try {
-      return jwtDecode<JwtPayload>(token);
-    } catch (e) {
-      return null;
-    }
+  isTokenExpired(token: string): boolean {
+    const decoded = this.decodeToken(token);
+    if (!decoded) return true;
+
+    const now = Date.now() / 1000; 
+    return decoded.exp < now;
   }
 
   isLoggedIn(): boolean {
-    return !!this.getUserInfo();
+    const token = this.getToken();
+    if (!token) return false;
+    return !this.isTokenExpired(token);
+  }
+
+  
+  getUserRole(token: string): string | null {
+    const decoded = this.decodeToken(token);
+    return decoded?.role || null;
   }
 }

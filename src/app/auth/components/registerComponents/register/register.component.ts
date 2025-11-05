@@ -17,7 +17,8 @@ import { ErrorToastComponent } from '../../error-toast/error-toast.component';
 import { InputNameComponent } from '../input-name/input-name.component';
 import { InputPasswordComponent } from '../input-password/input-password.component';
 import { InputPhoneComponent } from '../input-phone/input-phone.component';
-import { ModalComponent } from "../../../../shared/components/modal/modal.component";
+import { ModalComponent } from '../../../../shared/components/modal/modal.component';
+import { AuthService } from '../../../shared/services/auth.service';
 
 @Component({
   selector: 'app-register',
@@ -31,7 +32,7 @@ import { ModalComponent } from "../../../../shared/components/modal/modal.compon
     InputNameComponent,
     InputPasswordComponent,
     InputPhoneComponent,
-    ModalComponent
+    ModalComponent,
   ],
   templateUrl: './register.component.html',
   styleUrl: './register.component.css',
@@ -52,7 +53,8 @@ export class RegisterComponent {
   private formBuilder: FormBuilder = inject(FormBuilder);
   private http: HttpClient = inject(HttpClient);
   private router: Router = inject(Router);
-  private tokenservice: TokenService = inject(TokenService);
+  private tokenService: TokenService = inject(TokenService);
+  private authService: AuthService = inject(AuthService);
 
   registerForm: FormGroup = new FormGroup({});
 
@@ -112,48 +114,38 @@ export class RegisterComponent {
     if (this.registerForm.invalid) {
       this.error_text =
         'All fields are required. Complete the form to continue.';
-      this.existingUser = true;
-      setTimeout(() => {
-        this.existingUser = false;
-      }, 3000);
-    } else {
-      this.loading = true;
-
-      const requestBody = {
-        name: this.username,
-        email: this.email,
-        password: this.password,
-        phonenumber: this.phonenumber,
-      };
-      this.http
-        .post<any>('http://localhost:5000/user/register', requestBody)
-        .subscribe({
-          next: (res) => {
-            const { data } = res;
-            this.tokenservice.storeToken(data);
-            localStorage.removeItem('state');
-            localStorage.removeItem('email');
-            this.router.navigate(['main-page'], { replaceUrl: true });
-          },
-          error: (err) => {
-            this.loading = false;
-            const { status } = err;
-            if (status == 409) {
-              this.error_text =
-                'User with this email or phone numer already registered !';
-              this.existingUser = true;
-              setTimeout(() => {
-                this.existingUser = false;
-              }, 3000);
-            } else {
-              this.existingUser = true;
-              this.error_text = 'Some thing went wrong !';
-              setTimeout(() => {
-                this.existingUser = false;
-              }, 3000);
-            }
-          },
-        });
+      this.showError();
+      return;
     }
+
+    this.loading = true;
+
+    this.authService
+      .register(this.username, this.email!, this.password, this.phonenumber)
+      .subscribe({
+        next: (res) => {
+          const { data } = res;
+          this.tokenService.storeToken(data);
+          localStorage.removeItem('state');
+          localStorage.removeItem('email');
+          this.router.navigate(['main-page'], { replaceUrl: true });
+        },
+        error: (err) => {
+          this.loading = false;
+          const { status } = err;
+          if (status == 409) {
+            this.error_text =
+              'User with this email or phone number already registered!';
+          } else {
+            this.error_text = 'Something went wrong!';
+          }
+          this.showError();
+        },
+      });
+  }
+
+  private showError() {
+    this.existingUser = true;
+    setTimeout(() => (this.existingUser = false), 3000);
   }
 }

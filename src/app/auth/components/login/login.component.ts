@@ -10,10 +10,12 @@ import {
 } from '@angular/forms';
 import { Router } from '@angular/router';
 import { LoadingSpinnerComponent } from "../loading-spinner/loading-spinner.component";
+import { AuthService } from '../../shared/services/auth.service';
+import { GoogleAuthComponent } from "../google-auth/google-auth.component";
 
 @Component({
   selector: 'app-login',
-  imports: [FormsModule, ReactiveFormsModule, CommonModule, HttpClientModule, LoadingSpinnerComponent],
+  imports: [FormsModule, ReactiveFormsModule, CommonModule, HttpClientModule, LoadingSpinnerComponent, GoogleAuthComponent],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
 })
@@ -27,6 +29,7 @@ export class LoginComponent {
   private formBuilder: FormBuilder = inject(FormBuilder);
   private http: HttpClient = inject(HttpClient);
   private router: Router = inject(Router);
+  private authService: AuthService = inject(AuthService)
 
   loginForm: FormGroup = new FormGroup({});
   ngOnInit() {
@@ -38,28 +41,26 @@ export class LoginComponent {
   onSubmit() {
     if (this.loginForm.invalid) {
       this.isInValid = true;
-    } else {
-      this.isInValid = false;
-      this.loading = true;
-      const requestBody = {
-        user_email: this.value,
-      };
-      this.http
-        .post<any>('http://localhost:5000/user/login', requestBody)
-        .subscribe({
-          next: (res) => {
-            const { data, message } = res;
-            localStorage.setItem('email', this.value);
-            localStorage.setItem('token', data);
-            localStorage.setItem('state', message);
-            this.router.navigate(['/auth/verify']);
-          },
-          error: (err) => {
-            this.loading = false;
-            console.error(err);
-          },
-        });
+      return;
     }
+
+    this.isInValid = false;
+    this.loading = true;
+    const email = this.value;
+
+    this.authService.login(email).subscribe({
+      next: (res) => {
+        const { data, message } = res;
+        localStorage.setItem('email', email);
+        localStorage.setItem('token', data);
+        localStorage.setItem('state', message);
+        this.router.navigate(['/auth/verify']);
+      },
+      error: (err) => {
+        console.error(err);
+        this.loading = false;
+      },
+    });
   }
 
   onchange(event: any) {
